@@ -5,8 +5,6 @@ namespace App\Repository;
 use App\Entity\Event;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * @extends ServiceEntityRepository<Event>
@@ -18,76 +16,46 @@ use Symfony\Contracts\Cache\ItemInterface;
  */
 class EventRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry, private CacheInterface $cache)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Event::class);
     }
 
-    public function search(string $term = null, string $date = null): array
+    public function findByTermAndDate(string $term = null, string $date = null): array
     {
-        return $this->cache->get('events_' . md5($term . $date), function (ItemInterface $item) use ($term, $date) {
-            $queryBuilder = $this->createQueryBuilder('e');
+        
+        $queryBuilder = $this->createQueryBuilder('e');
 
-            if ($term) {
-                $queryBuilder
-                    ->andWhere($queryBuilder->expr()->orX(
-                        $queryBuilder->expr()->like('e.city', ':term'),
-                        $queryBuilder->expr()->like('e.country', ':term')
-                    ))
-                    ->setParameter('term', '%' . $term . '%');
-            }
-
-            if ($date) {
-                $queryBuilder
-                    ->andWhere('e.startDate <= :date')
-                    ->andWhere('e.endDate >= :date')
-                    ->setParameter('date', $date);
-            }
-
-            return $queryBuilder->getQuery()->getResult();
-        });
-    }
-
-    public function save(Event $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->persist($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
+        // Filter by term: Look for any similar matches on the city or country fields
+        if (!empty($term)) {
+            $queryBuilder
+            ->andWhere(
+                $queryBuilder->expr()->orX(
+                    $queryBuilder->expr()->like('LOWER(e.city)', 'LOWER(:term)'),
+                    $queryBuilder->expr()->like('LOWER(e.country)', 'LOWER(:term)')
+                )
+            )
+            ->setParameter('term', '%' . str_replace('*', '%', strtolower($term)) . '%');
         }
-    }
 
-    public function remove(Event $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->remove($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
+        // Filter by date: Events that the date searched for is within the range between startDate and endDate
+        if (!empty($date)) {
+            $queryBuilder->andWhere(
+                $queryBuilder->expr()->andX(
+                    $queryBuilder->expr()->lte(':date', 'e.endDate'),
+                    $queryBuilder->expr()->gte(':date', 'e.startDate')
+                )
+            )->setParameter('date', $date);
         }
+
+        return $queryBuilder->getQuery()->getResult();
     }
 
-//    /**
-//     * @return Event[] Returns an array of Event objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('e')
-//            ->andWhere('e.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('e.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?Event
-//    {
-//        return $this->createQueryBuilder('e')
-//            ->andWhere('e.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function saveBatch(array $events): void
+    {
+        foreach ($events as $event) {
+            $this->getEntityManager()->persist($event);
+        }
+        $this->getEntityManager()->flush();
+    }
 }

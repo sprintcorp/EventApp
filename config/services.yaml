@@ -20,5 +20,20 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    # App\Exception\ErrorHandler:
+    #     tags:
+    #         - { name: kernel.event_listener, event: kernel.exception }
+
+    # Symfony\Bundle\TwigBundle\Controller\ExceptionController:
+    #     arguments:
+    #         - '@twig'
+    #         - '%kernel.debug%'
+    #         - null
+    #     calls:
+    #         - [setControllerResolver, ['@controller_resolver']]
+    #         - [setLogger, ['@logger']]
+    #         - [setExceptionHandler, [null]]
+    #         - [setSerializer, ['@serializer']]
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
