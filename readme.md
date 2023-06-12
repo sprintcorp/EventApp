@@ -40,7 +40,7 @@ Install all the serverside dependencies using composer manager
 
     composer install
 
-Copy the example env file and make the required configuration changes (DATABASE_URL)
+Create .env file if it does not exist and copy the .env.example to .env file and make the required configuration changes (DATABASE_URL)
 
     cp .env.example .env(WIndows)
 
