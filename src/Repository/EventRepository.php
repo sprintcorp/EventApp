@@ -51,11 +51,13 @@ class EventRepository extends ServiceEntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function saveBatch(array $events): void
+    public function saveBatch(array $events)
     {
         foreach ($events as $event) {
             $this->getEntityManager()->persist($event);
         }
+        
         $this->getEntityManager()->flush();
+        return true;
     }
 }

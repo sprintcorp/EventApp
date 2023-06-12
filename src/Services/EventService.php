@@ -11,19 +11,45 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 class EventService implements EventInterface{
-    public function __construct(private EventRepository $eventRepository
-    , private CacheInterface $cache, private LoggerInterface $logger, private KernelInterface $kernel)
-    {
-        
-    }
+    public function __construct(
+        private EventRepository $eventRepository,
+        private CacheInterface $cache,
+        private LoggerInterface $logger,
+        private KernelInterface $kernel)
+        {
+            
+        }
 
-    public function searchByTermAndDate(string $term = null, string $date = null): array{
+    public function searchByTermAndDate(string $term = null, string $date = null, int $page
+    , int $perPage): array{
+
         $this->logger->info('Event search request', [
             'term' => $term,
             'date' => $date,
         ]);
-        return $this->cache->get('events_' . md5($term . $date), function (ItemInterface $item) use ($term, $date) {
-            return $this->eventRepository->findByTermAndDate($term, $date);
+
+        $cacheKey = 'events__' . $term . '_' . $date .$page. $perPage;
+
+        return $this->cache->get($cacheKey, function (ItemInterface $item) use ($term, $date, $page,
+         $perPage) {
+             
+            $item->expiresAfter(36000); 
+            $events = $this->eventRepository->findByTermAndDate($term, $date);
+
+            $totalEvents = count($events);
+            $totalPages = ceil($totalEvents / $perPage);
+            $offset = ($page - 1) * $perPage;
+            $paginatedEvents = array_slice($events, $offset, $perPage);
+
+            
+            $item->expiresAfter(3600);
+
+            return [
+                'data' => $paginatedEvents,
+                'page' => $page,
+                'perPage' => $perPage,
+                'totalPage' => $totalPages
+            ];
         });
     }
 
@@ -31,20 +57,19 @@ class EventService implements EventInterface{
         $jsonData = file_get_contents($this->kernel->getProjectDir() . '/data.json');
         $data = json_decode($jsonData, true);
 
-        $events = [];
-        
-        foreach ($data as $item) {
+        $events = array_map(function ($item) {
             $event = new Event();
-            $event->setName($item['name']);
-            $event->setCity($item['city']);
-            $event->setCountry($item['country']);
-            $event->setStartDate(new \DateTime($item['startDate']));
-            $event->setEndDate(new \DateTime($item['endDate']));
-
-            $events[] = $event;
-        }
+            $event->setName($item['name'])
+                ->setCity($item['city'])
+                ->setCountry($item['country'])
+                ->setStartDate(new \DateTime($item['startDate']))
+                ->setEndDate(new \DateTime($item['endDate']));
+        
+            return $event;
+        }, $data);
 
         $this->eventRepository->saveBatch($events);
+        $this->cache->deleteItem('events__');
         return "Events saved successfully";
     }
 }

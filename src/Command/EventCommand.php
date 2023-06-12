@@ -34,7 +34,6 @@ class EventCommand extends Command
         $response = $this->eventService->importEventToDatabase();
 
         $output->writeln($response);
-        $output->writeln($input->getArgument('arg1'));
 
         return Command::SUCCESS;
     }

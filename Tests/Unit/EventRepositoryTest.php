@@ -3,70 +3,63 @@
 namespace App\Tests\Unit;
 
 use App\Entity\Event;
-use App\Repository\EventRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Persistence\ManagerRegistry;
-use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class EventRepositoryTest extends TestCase
+class EventRepositoryTest extends KernelTestCase
 {
+    /**
+     * @var \Doctrine\ORM\EntityManager
+     */
     private $entityManager;
-    private $registry;
-    private $repository;
+
+    private $eventJsonData;
+    
 
     protected function setUp(): void
     {
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->registry = $this->createMock(ManagerRegistry::class);
+        $kernel = self::bootKernel();
 
-        $this->repository = new EventRepository($this->registry);
-        $this->repository->setEntityManager($this->entityManager);
+        $this->entityManager = $kernel->getContainer()
+            ->get('doctrine')
+            ->getManager();
+
+        $this->eventJsonData = $kernel->getProjectDir(). '/data.json';
     }
+
 
     public function testFindByTermAndDate(): void
     {
-        // Create a mock query builder
-        $queryBuilder = $this->getMockBuilder('Doctrine\ORM\QueryBuilder')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        // Create a mock query
-        $query = $this->getMockBuilder('Doctrine\ORM\AbstractQuery')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        // Set up the mock query builder and query
-        $this->entityManager->expects($this->once())
-            ->method('createQueryBuilder')
-            ->willReturn($queryBuilder);
-
-        $queryBuilder->expects($this->once())
-            ->method('select')
-            ->willReturnSelf();
-
-        $queryBuilder->expects($this->once())
-            ->method('from')
-            ->willReturnSelf();
-
-        $queryBuilder->expects($this->exactly(2))
-            ->method('andWhere')
-            ->willReturnSelf();
-
-        $queryBuilder->expects($this->exactly(2))
-            ->method('setParameter')
-            ->willReturnSelf();
-
-        $queryBuilder->expects($this->once())
-            ->method('getQuery')
-            ->willReturn($query);
-
-        $query->expects($this->once())
-            ->method('getResult')
-            ->willReturn([]);
-
-        // Call the method to test
-        $result = $this->repository->findByTermAndDate('foo', '2022-01-01');
-
-        $this->assertEquals([], $result);
+        $events = $this->entityManager
+            ->getRepository(Event::class)
+            ->findByTermAndDate('greece', '2024-04-25');
+        $this->assertIsArray($events);
     }
+
+    public function testSaveBatch()
+    {
+        $data = [[
+              "name"=> "Ex exercitation et occaecat excepteur nostrud aute voluptate elit.",
+              "city"=> "Dupuyer",
+              "country"=> "Bahamas",
+              "startDate"=> "2024-04-07",
+              "endDate"=> "2024-05-11"
+        ]];
+
+        $eventsData = array_map(function ($item) {
+            $event = new Event();
+            $event->setName($item['name'])
+                ->setCity($item['city'])
+                ->setCountry($item['country'])
+                ->setStartDate(new \DateTime($item['startDate']))
+                ->setEndDate(new \DateTime($item['endDate']));
+            return $event;
+        }, $data);
+
+        $events = $this->entityManager
+            ->getRepository(Event::class)
+            ->saveBatch($eventsData);
+        $this->assertTrue($events);
+    }
+
 }
+

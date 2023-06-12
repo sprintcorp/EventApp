@@ -20,6 +20,17 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    app.request_logger:
+        class: Monolog\Logger
+        arguments:
+            - 'api'
+        calls:
+            - [pushHandler, ['@monolog.handler.api']]
+
+    App\EventListener\RequestListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
+
     # App\Exception\ErrorHandler:
     #     tags:
     #         - { name: kernel.event_listener, event: kernel.exception }

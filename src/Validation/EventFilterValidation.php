@@ -1,7 +1,5 @@
 <?php
 
-// src/Validation/EventFilterValidation.php
-
 namespace App\Validation;
 
 use Symfony\Component\HttpFoundation\Request;
@@ -12,6 +10,8 @@ class EventFilterValidation
     {
         $term = $request->query->get('term');
         $date = $request->query->get('date');
+        $page = $request->query->get('page');
+        $perPage = $request->query->get('perPage');
 
         
         if ($term && empty($term)) {
@@ -22,6 +22,15 @@ class EventFilterValidation
         if ($date && empty($date)) {
             throw new \InvalidArgumentException('Date is required.');
         }
+
+        if ($page && !is_numeric($page)) {
+            throw new \InvalidArgumentException('Page must be a numeric value');
+        }
+
+        if ($perPage && !is_numeric($perPage)) {
+            throw new \InvalidArgumentException('Per page must be a numeric value');
+        }
+
 
         if($date){
 
