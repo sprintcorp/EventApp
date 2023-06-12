@@ -11,11 +11,11 @@ IF %ERRORLEVEL% NEQ 0 (
 REM Step 3: Run database migrations
 php bin/console doctrine:migrations:migrate --env=test --no-interaction
 
-REM Step 4: Additional setup commands (if needed)
+REM Step 4: Run command to create event data
 php bin/console create:event --env=test
 
 REM Step 5: Run tests
 php bin/phpunit
 
-REM Step 6: Clear event
+REM Step 6: Clear event table
 php bin/console doctrine:query:sql "TRUNCATE TABLE event" --env=test
