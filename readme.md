@@ -91,7 +91,7 @@ This will automate the whole test process by doing the following;
 
 ## Usage
 
-- Get all events `localhost:8000/api/events` method `GET` 
+- Get all events `localhost:8000/api/events` method `GET`. the repsonse is paginated and when filtered will have a link like this `localhost:8000/api/events?page=1&perPage=10`
 #### Response
 
     {
