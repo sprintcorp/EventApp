@@ -23,12 +23,14 @@ class EventService implements EventInterface{
     public function searchByTermAndDate(string $term = null, string $date = null, int $page
     , int $perPage): array{
 
-        $this->logger->info('Event search request', [
+        $this->logger->info('Event filter request', [
             'term' => $term,
             'date' => $date,
+            'page' => $page,
+            'perPage' => $perPage,
         ]);
 
-        $cacheKey = 'events__' . $term . '_' . $date .$page. $perPage;
+        $cacheKey = 'events__';
 
         return $this->cache->get($cacheKey, function (ItemInterface $item) use ($term, $date, $page,
          $perPage) {
