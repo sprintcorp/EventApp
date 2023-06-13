@@ -64,7 +64,7 @@ class EventServiceTest extends TestCase
         
         $this->cache->expects($this->once())
             ->method('get')
-            ->willReturnCallback(function ($cacheKey, $callback) use ($term, $date, $page, $perPage,
+            ->willReturnCallback(function ($cacheKey, $callback) use ($term, $date,
             $events, $expectedResponse) {
                 $item = $this->createMock(ItemInterface::class);
                 
@@ -81,7 +81,7 @@ class EventServiceTest extends TestCase
             });
         
         $response = $this->eventService->searchByTermAndDate($term, $date, $page, $perPage);
-        
+    
         $this->assertEquals($expectedResponse, $response);
     }
 }
