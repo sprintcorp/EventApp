@@ -84,6 +84,10 @@ This will automate the whole test process by doing the following;
 - Run tests
 - Clear event table
 
+## Postman documentation
+
+`https://documenter.getpostman.com/view/7305732/2s93sdaCx8`
+
 
 ## Usage
 
