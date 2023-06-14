@@ -1,7 +1,7 @@
 @echo off
 
 REM Step 1: Check if the test database already exists
-php bin/console doctrine:query:sql "SELECT 1 FROM information_schema.schemata WHERE schema_name = 'your_database_name'" --env=test > nul 2>&1
+php bin/console doctrine:query:sql "SELECT 1 FROM information_schema.schemata WHERE schema_name = 'event_app_test_database'" --env=test > nul 2>&1
 
 REM Step 2: If the database doesn't exist, create it
 IF %ERRORLEVEL% NEQ 0 (
