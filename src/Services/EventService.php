@@ -30,7 +30,7 @@ class EventService implements EventInterface{
             'perPage' => $perPage,
         ]);
 
-        $cacheKey = 'events__';
+        $cacheKey = 'events__'.$term.$date.$page.$perPage;
 
         return $this->cache->get($cacheKey, function (ItemInterface $item) use ($term, $date, $page,
          $perPage) {
@@ -71,7 +71,7 @@ class EventService implements EventInterface{
         }, $data);
 
         $this->eventRepository->saveBatch($events);
-        $this->cache->deleteItem('events__');
+        // $this->cache->deleteItem('events__');
         return "Events saved successfully";
     }
 }

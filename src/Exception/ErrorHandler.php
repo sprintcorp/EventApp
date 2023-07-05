@@ -44,7 +44,7 @@ class ErrorHandler
         } else {
             $response = new JsonResponse([
                 'error' => $exception->getMessage(),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            ], Response::HTTP_EXPECTATION_FAILED);
         }
 
         $event->setResponse($response);

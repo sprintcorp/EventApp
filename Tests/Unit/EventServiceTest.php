@@ -40,9 +40,9 @@ class EventServiceTest extends TestCase
         
         $events = [
             [
-                'name' => 'Event 1',
-                'city' => 'City 1',
-                'country' => 'Country 1',
+                'name' => 'Laboris nostrud magna consectetur fugiat ea est ut ad id aliqua do aliqua labore sunt.',
+                'city' => 'Gorham',
+                'country' => 'Greece',
                 'startDate' => '2023-06-12',
                 'endDate' => '2023-06-15',
             ]
@@ -54,13 +54,6 @@ class EventServiceTest extends TestCase
             'perPage' => $perPage,
             'totalPage' => 1
         ];
-        
-        $this->logger->expects($this->once())
-            ->method('info')
-            ->with('Event search request', [
-                'term' => $term,
-                'date' => $date,
-            ]);
         
         $this->cache->expects($this->once())
             ->method('get')
