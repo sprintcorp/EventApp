@@ -40,7 +40,7 @@ Install all the serverside dependencies using composer manager
 
     composer install
 
-Copy the example env file and make the required configuration changes (DATABASE_URL)
+Create .env file if it does not exist and copy the .env.example to .env file and make the required configuration changes (DATABASE_URL)
 
     cp .env.example .env(WIndows)
 
@@ -84,10 +84,14 @@ This will automate the whole test process by doing the following;
 - Run tests
 - Clear event table
 
+## Postman documentation
+
+`https://documenter.getpostman.com/view/7305732/2s93sdaCx8`
+
 
 ## Usage
 
-- Get all events `localhost:8000/api/events` method `GET` 
+- Get all events `localhost:8000/api/events` method `GET`. the repsonse is paginated and when filtered will have a link like this `localhost:8000/api/events?page=1&perPage=10`
 #### Response
 
     {

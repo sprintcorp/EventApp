@@ -15,8 +15,7 @@ class ErrorHandler
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
-
-        // Handle specific exceptions
+        
         if ($exception instanceof InvalidArgumentException) {
             $response = new JsonResponse([
                 'error' => $exception->getMessage(),
@@ -38,18 +37,16 @@ class ErrorHandler
             ], Response::HTTP_FORBIDDEN);
 
         } elseif ($this->isFatalError($exception)) {
-            // Handle code errors
             $response = new JsonResponse([
                 'error' => 'Internal Server Error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
+
         } else {
-            // Handle general exceptions
             $response = new JsonResponse([
                 'error' => 'Unexpected error occurred',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        // Set the response on the event
         $event->setResponse($response);
     }
 
