@@ -43,7 +43,7 @@ class ErrorHandler
 
         } else {
             $response = new JsonResponse([
-                'error' => 'Unexpected error occurred',
+                'error' => $exception->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
