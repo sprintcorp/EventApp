@@ -31,9 +31,9 @@ services:
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
 
-    # App\Exception\ErrorHandler:
-    #     tags:
-    #         - { name: kernel.event_listener, event: kernel.exception }
+    App\Exception\ErrorHandler:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }
 
     # Symfony\Bundle\TwigBundle\Controller\ExceptionController:
     #     arguments:
